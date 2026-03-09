@@ -164,7 +164,6 @@ jobs:
  deploy_prod:
   runs-on: ubuntu-latest
   needs: [trivy_backend_image, trivy_frontend_image] 
-  if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging'
   steps:
     - uses: aws-actions/configure-aws-credentials@v4
       with:

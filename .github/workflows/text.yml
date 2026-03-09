@@ -1,13 +1,6 @@
 name: Ecommerce Parallel CI/CD
 on:
-  push:
-    branches:
-      - dev
-  pull_request:
-    branches:
-      - staging
-    tags:
-      - 'v*.*.*'
+    workflow_dispatch:
 permissions:
   id-token: write
   contents: read
@@ -158,40 +151,12 @@ jobs:
 # --------------------------------
 # 6 DEPLOY TO DEV
 # --------------------------------
- deploy_dev:
-  runs-on: ubuntu-latest
-  needs: [trivy_frontend_image, trivy_backend_image]
-  if: github.ref == 'refs/heads/dev'
-  steps:
-    - uses: aws-actions/configure-aws-credentials@v4
-      with:
-        role-to-assume: ${{ secrets.AWS_ROLE }}
-        aws-region: ${{ env.AWS_REGION }}
-    - name: Deploy to DEV
-      run: |
-        aws deploy create-deployment \
-          --application-name $CODEDEPLOY_APP \
-          --deployment-group-name dev-deployment \
-          --deployment-config-name CodeDeployDefault.ECSAllAtOnce
+
 
 # --------------------------------
 # 7 DEPLOY TO STAGING AFTER DEV SUCCESS
 # --------------------------------
- deploy_staging:
-  runs-on: ubuntu-latest
-  needs: deploy_dev
-  if: github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/dev'
-  steps:
-    - uses: aws-actions/configure-aws-credentials@v4
-      with:
-        role-to-assume: ${{ secrets.AWS_ROLE }}
-        aws-region: ${{ env.AWS_REGION }}
-    - name: Deploy to STAGING
-      run: |
-        aws deploy create-deployment \
-          --application-name $CODEDEPLOY_APP \
-          --deployment-group-name staging-deployment \
-          --deployment-config-name CodeDeployDefault.ECSAllAtOnce
+
 
 # --------------------------------
 # 8 DEPLOY TO PROD AFTER STAGING SUCCESS
